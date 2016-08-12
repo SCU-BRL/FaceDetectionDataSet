@@ -78,6 +78,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DataManegement.cpp" />
+    <ClCompile Include="userAPI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DataManagement.h" />
+    <ClInclude Include="MultiPie.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

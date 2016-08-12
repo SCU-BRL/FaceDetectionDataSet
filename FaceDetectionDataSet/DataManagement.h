@@ -2,7 +2,6 @@
 	Describe and read file information.
 	This is a father class.
 */
-
 #pragma once
 #include <iostream>
 #include <map>
@@ -10,50 +9,57 @@
 #include <fstream>
 
 // label information per image
-class LabelInfo
+class CLabelInfo
 {
 public: 
 	// related path of file
-	std::string related_path;
+	std::string mRelatedPath;
 	// if without face num_object == 0, else > 0
-	int num_object;
+	int mObjectNum = 0;
 	// x y w h pitch yaw roll
-	std::vector<int> bbox_pose_info;
-
+	std::vector<int> mBboxPoseInfo;
 };
 
-class DataManagement
+class CDataManagement
 {
 
 public:
 	
 	// empty constructor
-	DataManagement(){ ; }
+	CDataManagement(){ ; }
 
 	// overload constructor, initialize folder path
-	DataManagement(std::string _path) :path(_path){ ; }
+	CDataManagement(std::string _path) :mParserPath(_path){ ; }
 
 	//store the object path and object data map<key, values>
-	std::map<std::string, std::vector<std::vector<int>>> dataInfo;
+	std::map<std::string, std::vector<std::vector<int>>> mDataInfo;
 
 	//store the face path
-	std::vector<std::string> imgPaths;
+	std::vector<std::string> mImgPaths;
+	
+	// store the object label file path
+	std::string mParserPath;
 
-	void readFaceDetectionResult();
+	// open and close parse file
+	virtual bool OpenParseFile();
+	virtual void CloseParseFile();
 
-	// open and close file
-	bool OpenFile();
-	void CloseFile();
+	// scan dataset, different dataset have diferent folder format
+	virtual void ScanDataSet(std::vector<std::string> &fileLists){ ; }
 
-	// 
-	bool set_path(std::string newPath);
+	// parse label file, return label info
+	void ParseLabelFile(std::vector<CLabelInfo> &labelInfos);
+	std::vector<int> SplitData(std::string tempData, std::string separator);
 
-	std::string get_path();
+	// set parser file path
+	bool SetPath(std::string newPath);
+
+	// get parser file path
+	std::string GetPath();
 
 private:
-
-	std::ifstream infile;
-	std::string path;
-	std::vector<int> getdatas(std::string data);
+	// label info come from parse file
+	std::vector<CLabelInfo> mLabelInfos;
+	std::ifstream mParserFile;
 
 };

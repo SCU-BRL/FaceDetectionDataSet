@@ -1,35 +1,37 @@
 #include <iostream>
+#include <string>
 #include "DataManagement.h"
 
 using namespace std;
 
-void example(std::string path)
+void example(std::vector<CLabelInfo> &labelInfos, std::string path)
 {
-	DataManagement read(path);
-	//read.set_path("E:/MultiPIE/data/FaceDetectionRecord.txt");
-	read.openFaceData();
-	read.readFaceDetectionResult();
-	std::string imgpath;
-	std::vector<std::vector<int>> datas;
-	std::vector<int> data;
-	for (int i = 0; i < read.imgPaths.size(); i++){
-		imgpath = read.imgPaths[i];
-		datas = read.dataInfo[imgpath];
-		std::cout << imgpath << endl << datas.size() << endl;
-		for (int j = 0; j < datas.size(); j++){
-			data = datas[j];
-			for (int k = 0; k < data.size(); k++){
-				std::cout << data[k] << "\t";
-			}
-			std::cout << endl;
-		}
-	}
-	read.closeFaceData();
+	CDataManagement dataManage(path);
+	dataManage.OpenParseFile();
+	dataManage.ParseLabelFile(labelInfos);
+	dataManage.CloseParseFile();
 }
 
 int main()
 {
-	example("E:/MultiPIE/data/FaceDetectionRecord.txt");
+	std::vector<CLabelInfo> labelInfos;
+	example(labelInfos,"D:/FaceDatabase/Multi-Pie/Multi-pie_FaceLabel/Multi-PieProfileBbox.txt");
+	for (int i = 0; i < labelInfos.size(); i++)
+	{
+		std::string imgpath = labelInfos[i].mRelatedPath;
+		int faceNum = labelInfos[i].mObjectNum;
+		std::vector<int> datas = labelInfos[i].mBboxPoseInfo;
+
+		std::cout << imgpath << endl << datas.size() << endl;
+		for (int k = 0; k < faceNum; k++)
+		{
+			for (int j = 0; j < datas.size(); j++)
+			{
+				std::cout << datas[j] << "\t";
+			}
+			std::cout << endl;
+		}
+	}
 	getchar();
 	return 1;
 }

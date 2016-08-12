@@ -4,23 +4,23 @@
 
 using namespace std;
 
-std::vector<int> DataManagement::getdatas(std::string data)
+// splite label info, get bbox and pose info
+std::vector<int> CDataManagement::SplitData(std::string data, std::string separator = " ")
 {
-	std::string sep = " ";
 	std::vector<std::string> *svec = new std::vector<std::string>;
 	std::string::size_type beg = 0, end = 0;
 	std::vector<int> datas;
 
-	beg = data.find_first_not_of(sep, end);
+	beg = data.find_first_not_of(separator, end);
 	while (beg != std::string::npos) {
-		end = data.find_first_of(sep, beg);
+		end = data.find_first_of(separator, beg);
 		if (end == std::string::npos) {
 			svec->push_back(std::string(data, beg));
 			break;
 		}
 		else {
 			svec->push_back(std::string(data, beg, end - beg));
-			beg = data.find_first_not_of(sep, end);
+			beg = data.find_first_not_of(separator, end);
 		}
 	}
 
@@ -33,64 +33,66 @@ std::vector<int> DataManagement::getdatas(std::string data)
 	return datas;
 }
 
-
-bool DataManagement::OpenFile()
+// open parse file
+// return file handle
+bool CDataManagement::OpenParseFile()
 {
-	infile.open(DataManagement::path);
-	if (!infile.is_open())
+	mParserFile.open(mParserPath);
+	if (!mParserFile.is_open())
 	{
-		std::cout << "can not open facedata file: " << DataManagement::path << endl;
+		std::cout << "can not open facedata file: " << CDataManagement::mParserPath << endl;
 		getchar();
 		return false;
 	}
-	std::cout << "open facedata file: " << DataManagement::path << " success!!" << endl;
+	std::cout << "open facedata file: " << CDataManagement::mParserPath << " success!!" << endl;
 	return true;
 }
 
-void DataManagement::CloseFile()
+void CDataManagement::CloseParseFile()
 {
-	infile.close();
+	mParserFile.close();
 }
 
-bool DataManagement::set_path(std::string newPath)
+bool CDataManagement::SetPath(std::string newPath)
 {
-	path = newPath;
+	mParserPath = newPath;
 	return true;
 }
 
-std::string DataManagement::get_path()
+std::string CDataManagement::GetPath()
 {
-	return path;
+	return mParserPath;
 }
 
-void DataManagement::readFaceDetectionResult()
+void CDataManagement::ParseLabelFile(std::vector<CLabelInfo> &labelInfos)
 {
 	//map<std::string, std::vector<std::vector<int>>> data;
 	//std::vector<std::string> imgpaths;
 
 	std::string imgpath, faces, data;
-	int facenum;
+	int faceNum;
 	std::vector<int> datas;
 	std::vector<std::vector<int>> alldatas;
-	while (getline(infile, imgpath))
+
+	while (getline(mParserFile, imgpath))
 	{
-		getline(infile, faces);
-		facenum = 0; facenum = atoi(faces.c_str());
-		if (facenum == 0){
-			continue;
+		CLabelInfo labelInfo;
+		
+		getline(mParserFile, faces);
+		faceNum = atoi(faces.c_str());
+		
+		for (int i = 0; i < faceNum; i++)
+		{
+			getline(mParserFile, data);
+			datas = SplitData(data);
+			labelInfo.mBboxPoseInfo = datas;
 		}
-		imgPaths.push_back(imgpath);
-		datas.clear();
-		alldatas.clear();
-		for (int i = 0; i < facenum; i++){
-			getline(infile, data);
-			datas = getdatas(data);
-			alldatas.push_back(datas);
-		}
-		dataInfo[imgpath] = alldatas;
 
+		labelInfo.mRelatedPath = imgpath;
+		labelInfo.mObjectNum = faceNum;
+
+		labelInfos.push_back(labelInfo);
 	}
-	cout << "having read all face datas!" << endl;
+
+	cout << "Parsing is complete." << endl;
 }
-
-
